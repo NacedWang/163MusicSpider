@@ -14,7 +14,7 @@ connection = pymysql.connect(host='localhost',
 # 保存评论
 def insert_comments(music_id, comments, detail, connection0):
     with connection0.cursor() as cursor:
-        sql = "INSERT INTO `comments` (`MUSIC_ID`, `COMMENTS`, `DETAILS`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `comments` (`music_id`, `COMMENTS`, `DETAILS`) VALUES (%s, %s, %s)"
         cursor.execute(sql, (music_id, comments, detail))
     connection0.commit()
 
@@ -22,7 +22,7 @@ def insert_comments(music_id, comments, detail, connection0):
 # 保存音乐
 def insert_music(music_id, music_name, album_id):
     with connection.cursor() as cursor:
-        sql = "INSERT INTO `musics` (`MUSIC_ID`, `MUSIC_NAME`, `ALBUM_ID`) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO `musics` (`music_id`, `music_name`, `album_id`) VALUES (%s, %s, %s)"
         cursor.execute(sql, (music_id, music_name, album_id))
     connection.commit()
 
@@ -51,26 +51,34 @@ def get_all_artist_num():
         return cursor.fetchone()
 
 
-# 获取所有歌手的 ID
+# 分页获取歌手的 ID
 def get_artist_page(offset, size):
     with connection.cursor() as cursor:
-        sql = "SELECT `ARTIST_ID` FROM `artists` ORDER BY ARTIST_ID limit %s ,%s"
+        sql = "SELECT `ARTIST_ID` FROM `artists` limit %s ,%s"
         cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 
 
-# 获取所有专辑的 ID
-def get_all_album():
+# 获取所有专辑的 数量
+def get_all_album_num():
     with connection.cursor() as cursor:
-        sql = "SELECT `ALBUM_ID` FROM `albums` ORDER BY ALBUM_ID"
+        sql = "SELECT count(1) as num FROM `albums` "
         cursor.execute(sql, ())
+        return cursor.fetchone()
+
+
+# 分页获取专辑的 ID
+def get_album_page(offset, size):
+    with connection.cursor() as cursor:
+        sql = "SELECT `album_id` FROM `albums` limit %s ,%s"
+        cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 
 
 # 获取所有音乐的 ID
 def get_all_music():
     with connection.cursor() as cursor:
-        sql = "SELECT `MUSIC_ID` FROM `musics` ORDER BY MUSIC_ID"
+        sql = "SELECT `music_id` FROM `musics` ORDER BY music_id"
         cursor.execute(sql, ())
         return cursor.fetchall()
 
@@ -78,7 +86,7 @@ def get_all_music():
 # 获取前一半音乐的 ID
 def get_before_music():
     with connection.cursor() as cursor:
-        sql = "SELECT `MUSIC_ID` FROM `musics` ORDER BY MUSIC_ID LIMIT 0, 800000"
+        sql = "SELECT `music_id` FROM `musics` ORDER BY music_id LIMIT 0, 800000"
         cursor.execute(sql, ())
         return cursor.fetchall()
 
@@ -86,7 +94,7 @@ def get_before_music():
 # 获取后一半音乐的 ID
 def get_after_music():
     with connection.cursor() as cursor:
-        sql = "SELECT `MUSIC_ID` FROM `musics` ORDER BY MUSIC_ID LIMIT 800000, 1197429"
+        sql = "SELECT `music_id` FROM `musics` ORDER BY music_id LIMIT 800000, 1197429"
         cursor.execute(sql, ())
         return cursor.fetchall()
 

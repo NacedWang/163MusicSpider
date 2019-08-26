@@ -59,9 +59,8 @@ class Album(object):
 def saveAlbumBatch(index):
     my_album = Album()
     offset = 1000 * index
-    print("index:", index, "offset:", offset)
     artists = sql.get_artist_page(offset, 1000)
-    print("artists :", len(artists))
+    print("index:", index, "offset:", offset, "artists :", len(artists))
     for i in artists:
         try:
             my_album.saveAlbums(i['ARTIST_ID'])
