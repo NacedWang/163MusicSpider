@@ -12,11 +12,34 @@ connection = pymysql.connect(host='localhost',
 
 
 # 保存评论
-def insert_comments(music_id, comments, detail, connection0):
-    with connection0.cursor() as cursor:
-        sql = "INSERT INTO `comments` (`music_id`, `COMMENTS`, `DETAILS`) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (music_id, comments, detail))
-    connection0.commit()
+def insert_comment(commentId, music_id, content, likedCount, time, userId, nickname, userImg):
+    with connection.cursor() as cursor:
+        sql = "INSERT INTO `comments` (`comment_id`, `music_id`, `content`, `liked_count`, `time`, `user_id`, `nickname`, `user_img`) VALUES (%s, $s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, (commentId, music_id, content, likedCount, time, userId, nickname, userImg))
+    connection.commit()
+
+# 保存歌词
+def insert_lyric(music_id, lyric):
+    with connection.cursor() as cursor:
+        sql = "INSERT INTO `lyrics` (`music_id`, `lyric`) VALUES (%s, %s)"
+        cursor.execute(sql, (music_id, lyric))
+    connection.commit()
+
+
+# 获取所有歌手的 数量
+def get_all_music_num():
+    with connection.cursor() as cursor:
+        sql = "SELECT count(1) as num FROM `musics` "
+        cursor.execute(sql, ())
+        return cursor.fetchone()
+
+
+# 分页获取歌手的 ID
+def get_music_page(offset, size):
+    with connection.cursor() as cursor:
+        sql = "SELECT `music_id` FROM `musics` limit %s ,%s"
+        cursor.execute(sql, (offset, size))
+        return cursor.fetchall()
 
 
 # 保存音乐
@@ -79,22 +102,6 @@ def get_album_page(offset, size):
 def get_all_music():
     with connection.cursor() as cursor:
         sql = "SELECT `music_id` FROM `musics` ORDER BY music_id"
-        cursor.execute(sql, ())
-        return cursor.fetchall()
-
-
-# 获取前一半音乐的 ID
-def get_before_music():
-    with connection.cursor() as cursor:
-        sql = "SELECT `music_id` FROM `musics` ORDER BY music_id LIMIT 0, 800000"
-        cursor.execute(sql, ())
-        return cursor.fetchall()
-
-
-# 获取后一半音乐的 ID
-def get_after_music():
-    with connection.cursor() as cursor:
-        sql = "SELECT `music_id` FROM `musics` ORDER BY music_id LIMIT 800000, 1197429"
         cursor.execute(sql, ())
         return cursor.fetchall()
 

@@ -24,3 +24,23 @@ CREATE TABLE `musics` (
   PRIMARY KEY (`music_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 评论表
+CREATE TABLE `comments` (
+  `comment_id` bigint(20) NOT NULL,
+  `music_id` bigint(20) DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
+  `liked_count` int(10) DEFAULT NULL,
+  `time` bigint(20) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `nickname` varchar(255) DEFAULT NULL,
+  `user_img` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`comment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 歌词表
+CREATE TABLE `lyrics` (
+  `music_id` bigint(20) NOT NULL,
+  `lyric` text DEFAULT NULL,
+  PRIMARY KEY (`music_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
