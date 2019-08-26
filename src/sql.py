@@ -38,7 +38,7 @@ def insert_album(album_id, artist_id, title, img):
 # 保存歌手
 def insert_artist(artist_id, artist_name):
     with connection.cursor() as cursor:
-        sql = "INSERT INTO `artists` (`ARTIST_ID`, `ARTIST_NAME`) VALUES (%s, %s)"
+        sql = "INSERT INTO `artists` (`artist_id`, `artist_name`) VALUES (%s, %s)"
         cursor.execute(sql, (artist_id, artist_name))
     connection.commit()
 
@@ -54,7 +54,7 @@ def get_all_artist_num():
 # 分页获取歌手的 ID
 def get_artist_page(offset, size):
     with connection.cursor() as cursor:
-        sql = "SELECT `ARTIST_ID` FROM `artists` limit %s ,%s"
+        sql = "SELECT `artist_id` FROM `artists` limit %s ,%s"
         cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 

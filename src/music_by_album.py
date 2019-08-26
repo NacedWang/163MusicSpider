@@ -57,7 +57,7 @@ def saveMusicBatch(index):
     print("index:", index, "offset:", offset, " albums :", len(albums))
     for i in albums:
         try:
-            my_music.save_music(i['ALBUM_ID'])
+            my_music.save_music(i['album_id'])
         except Exception as e:
             # 打印错误日志
             print(str(i) + ' interval error: ' + str(e))

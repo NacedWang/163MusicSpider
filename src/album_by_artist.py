@@ -63,7 +63,7 @@ def saveAlbumBatch(index):
     print("index:", index, "offset:", offset, "artists :", len(artists))
     for i in artists:
         try:
-            my_album.saveAlbums(i['ARTIST_ID'])
+            my_album.saveAlbums(i['artist_id'])
         except Exception as e:
             # 打印错误日志
             print(str(i) + ' internal  error : ' + str(e))

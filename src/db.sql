@@ -1,10 +1,10 @@
 
 -- 歌手表
 CREATE TABLE `artists` (
-  `ARTIST_ID` bigint(20) NOT NULL,
-  `ARTIST_NAME` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`ARTIST_ID`),
-  KEY `unique_id` (`ARTIST_ID`)
+  `artist_id` bigint(20) NOT NULL,
+  `artist_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`artist_id`),
+  KEY `unique_id` (`artist_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 专辑表
