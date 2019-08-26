@@ -13,7 +13,6 @@ from concurrent.futures.process import ProcessPoolExecutor
 import requests
 
 from src import sql
-from src.util.json_util import JsonUtil
 from src.util.user_agents import agents
 
 
@@ -42,11 +41,6 @@ class LyricComment(object):
                          headers=self.headers)
         # 解析
         lyricJson = json.loads(r.text)
-        jsonUtil = JsonUtil()
-        if not jsonUtil.isExtend(lyricJson, 'lrc'):
-            print(music_id, " has no lyric")
-            return
-
         # 把歌词里的时间干掉
         regex = re.compile(r'\[.*\]')
         finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
@@ -56,17 +50,18 @@ class LyricComment(object):
 
 def saveLyricBatch(index):
     my_lyric_comment = LyricComment()
-    offset = 1000 * index
-    musics = sql.get_music_page(offset, 1000)
-    print("index:", index, "offset:", offset, "artists :", len(musics))
+    offset = 100 * index
+    musics = sql.get_music_page(offset, 100)
+    print("index:", index, "offset:", offset, "artists :", len(musics), "start")
     for item in musics:
         try:
             my_lyric_comment.saveLyric(item['music_id'])
         except Exception as e:
             # 打印错误日志
             print(item['music_id'], ' internal  error : ' + str(e))
-            traceback.print_exc()
+            # traceback.print_exc()
             time.sleep(5)
+    print("index:", index, "finished")
 
 
 if __name__ == '__main__':
@@ -76,13 +71,13 @@ if __name__ == '__main__':
     # 所有歌手数量
     musics_num = sql.get_all_music_num()
     # 批次
-    batch = math.ceil(musics_num.get('num') / 1000.0)
+    batch = math.ceil(musics_num.get('num') / 100.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(1)
+    pool = ProcessPoolExecutor(10)
     for index in range(0, batch):
         pool.submit(saveLyricBatch, index)
     pool.shutdown(wait=True)
     print("======= 结束爬 歌词 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-    print((endTime - startTime).seconds)
+    print("耗时：", (endTime - startTime).seconds, "秒")

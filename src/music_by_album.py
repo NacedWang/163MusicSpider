@@ -59,7 +59,7 @@ def saveMusicBatch(index):
     my_music = Music()
     offset = 1000 * index
     albums = sql.get_album_page(offset, 1000)
-    print("index:", index, "offset:", offset, " albums :", len(albums))
+    print("index:", index, "offset:", offset, " albums :", len(albums), "start")
     for i in albums:
         try:
             my_music.save_music(i['album_id'])
@@ -67,6 +67,7 @@ def saveMusicBatch(index):
             # 打印错误日志
             print(str(i) + ' interval error: ' + str(e))
             time.sleep(5)
+    print("index:", index, "finished")
 
 
 if __name__ == '__main__':
@@ -86,4 +87,4 @@ if __name__ == '__main__':
     print("======= 结束爬 音乐 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-    print((endTime - startTime).seconds)
+    print("耗时：", (endTime - startTime).seconds,"秒")

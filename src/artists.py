@@ -5,7 +5,7 @@ import datetime
 
 import requests
 from bs4 import BeautifulSoup
-from music_163 import sql
+from src import sql
 
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -76,4 +76,4 @@ for i in labelList:
 print("======= 结束爬 歌手 信息 =======")
 endTime = datetime.datetime.now()
 print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-print((endTime - startTime).seconds)
+print("耗时：", (endTime - startTime).seconds, "秒")

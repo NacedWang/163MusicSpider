@@ -78,7 +78,7 @@ def saveCommentBatch(index):
     my_lyric_comment = LyricComment()
     offset = 1000 * index
     musics = sql.get_music_page(offset, 1000)
-    print("index:", index, "offset:", offset, "artists :", len(musics))
+    print("index:", index, "offset:", offset, "artists :", len(musics), "start")
     for item in musics:
         try:
             my_lyric_comment.saveComment(item['music_id'])
@@ -87,6 +87,7 @@ def saveCommentBatch(index):
             print(' internal  error : ' + str(e))
             # traceback.print_exc()
             time.sleep(5)
+    print("index:", index, "finished")
 
 
 if __name__ == '__main__':
@@ -105,4 +106,4 @@ if __name__ == '__main__':
     print("======= 结束爬 评论 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-    print((endTime - startTime).seconds)
+    print("耗时：", (endTime - startTime).seconds, "秒")
