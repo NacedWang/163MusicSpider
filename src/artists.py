@@ -5,6 +5,7 @@ import datetime
 
 import requests
 from bs4 import BeautifulSoup
+
 from src import sql
 
 headers = {
@@ -66,14 +67,18 @@ def save_artist(group_id, initial):
 
 labelList = set([])
 
-print("======= 开始爬 歌手 信息 =======")
-startTime = datetime.datetime.now()
-print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
-save_artist(None, None)
-for i in labelList:
-    for j in range(65, 91):
-        save_artist(i, j)
-print("======= 结束爬 歌手 信息 =======")
-endTime = datetime.datetime.now()
-print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-print("耗时：", (endTime - startTime).seconds, "秒")
+
+def artistSpider():
+    print("======= 开始爬 歌手 信息 =======")
+    startTime = datetime.datetime.now()
+    print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
+    save_artist(None, None)
+    for i in labelList:
+        for j in range(65, 91):
+            save_artist(i, j)
+    print("======= 结束爬 歌手 信息 =======")
+    endTime = datetime.datetime.now()
+    print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
+    print("耗时：", (endTime - startTime).seconds, "秒")
+
+# artistSpider()

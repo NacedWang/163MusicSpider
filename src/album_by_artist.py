@@ -74,7 +74,7 @@ def saveAlbumBatch(index):
     print("index:", index, "finished")
 
 
-if __name__ == '__main__':
+def albumSpider():
     print("======= 开始爬 专辑 信息 ===========")
     startTime = datetime.datetime.now()
     print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
@@ -91,3 +91,5 @@ if __name__ == '__main__':
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
     print("耗时：", (endTime - startTime).seconds, "秒")
+
+    # albumSpider()

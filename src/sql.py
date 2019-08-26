@@ -18,6 +18,7 @@ def insert_comment(commentId, music_id, content, likedCount, time, userId, nickn
         cursor.execute(sql, (commentId, music_id, content, likedCount, time, userId, nickname, userImg))
     connection.commit()
 
+
 # 保存歌词
 def insert_lyric(music_id, lyric):
     with connection.cursor() as cursor:
@@ -108,3 +109,19 @@ def get_all_music():
 
 def dis_connect():
     connection.close()
+
+
+# 清库
+def truncate_all():
+    with connection.cursor() as cursor:
+        sql = "truncate table artists"
+        cursor.execute(sql, ())
+        sql = "truncate table albums"
+        cursor.execute(sql, ())
+        sql = "truncate table musics"
+        cursor.execute(sql, ())
+        sql = "truncate table comments"
+        cursor.execute(sql, ())
+        sql = "truncate table lyrics"
+        cursor.execute(sql, ())
+    connection.commit()

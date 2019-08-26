@@ -20,6 +20,15 @@
 6. 建表sql [db.sql](src/db.sql)
 
 
+### 使用方法
+* 爬取所有数据
+    ###### 运行main.py
+    
+* 爬取单独数据
+    ###### 到src目录下 找到 【[文件信息](#文件信息)】 里的响应文件，解开最后一行的注释，运行
+    
+
+
 ---
 ### 参考
 [RitterHou/music-163](https://github.com/RitterHou/music-163)

@@ -70,7 +70,7 @@ def saveMusicBatch(index):
     print("index:", index, "finished")
 
 
-if __name__ == '__main__':
+def musicSpider():
     print("======= 开始爬 音乐 信息 ===========")
     startTime = datetime.datetime.now()
     print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
@@ -87,4 +87,6 @@ if __name__ == '__main__':
     print("======= 结束爬 音乐 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
-    print("耗时：", (endTime - startTime).seconds,"秒")
+    print("耗时：", (endTime - startTime).seconds, "秒")
+
+# musicSpider()
