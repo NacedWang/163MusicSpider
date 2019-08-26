@@ -2,6 +2,7 @@
 根据上一步获取的歌手的 ID 来用于获取所有的专辑 ID
 """
 import datetime
+import math
 import random
 import time
 
@@ -10,6 +11,7 @@ from bs4 import BeautifulSoup
 
 from src import sql
 from src.util.user_agents import agents
+from concurrent.futures import ProcessPoolExecutor
 
 
 class Album(object):
@@ -54,12 +56,12 @@ class Album(object):
                 time.sleep(5)
 
 
-if __name__ == '__main__':
-    artists = sql.get_all_artist()
+def saveAlbumBatch(index):
     my_album = Album()
-    print("======= 开始爬 专辑 信息 ===========")
-    startTime = datetime.datetime.now()
-    print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
+    offset = 1000 * index
+    print("index:", index, "offset:", offset)
+    artists = sql.get_artist_page(offset, 1000)
+    print("artists :", len(artists))
     for i in artists:
         try:
             my_album.saveAlbums(i['ARTIST_ID'])
@@ -67,6 +69,21 @@ if __name__ == '__main__':
             # 打印错误日志
             print(str(i) + ' internal  error : ' + str(e))
             time.sleep(5)
+
+
+if __name__ == '__main__':
+    print("======= 开始爬 专辑 信息 ===========")
+    startTime = datetime.datetime.now()
+    print(startTime.strftime('%Y-%m-%d %H:%M:%S'))
+    # 所有歌手数量
+    artists_num = sql.get_all_artist_num()
+    # 批次
+    batch = math.ceil(artists_num.get('num') / 1000.0)
+    # 构建线程池
+    pool = ProcessPoolExecutor(5)
+    for index in range(0, batch):
+        pool.submit(saveAlbumBatch, index)
+    pool.shutdown(wait=True)
     print("======= 结束爬 专辑 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))

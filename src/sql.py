@@ -43,11 +43,19 @@ def insert_artist(artist_id, artist_name):
     connection.commit()
 
 
-# 获取所有歌手的 ID
-def get_all_artist():
+# 获取所有歌手的 数量
+def get_all_artist_num():
     with connection.cursor() as cursor:
-        sql = "SELECT `ARTIST_ID` FROM `artists` ORDER BY ARTIST_ID limit 100"
+        sql = "SELECT count(1) as num FROM `artists` "
         cursor.execute(sql, ())
+        return cursor.fetchone()
+
+
+# 获取所有歌手的 ID
+def get_artist_page(offset, size):
+    with connection.cursor() as cursor:
+        sql = "SELECT `ARTIST_ID` FROM `artists` ORDER BY ARTIST_ID limit %s ,%s"
+        cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 
 
