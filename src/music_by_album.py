@@ -3,12 +3,15 @@
 """
 import datetime
 import math
+import random
+import time
 from concurrent.futures.process import ProcessPoolExecutor
 
 import requests
 from bs4 import BeautifulSoup
-import time
+
 from src import sql
+from src.util.user_agents import agents
 
 
 class Music(object):
@@ -30,14 +33,16 @@ class Music(object):
     def save_music(self, album_id):
         params = {'id': album_id}
         # 获取专辑对应的页面
+        agent = random.choice(agents)
+        self.headers["User-Agent"] = agent
         r = requests.get('https://music.163.com/album', headers=self.headers, params=params)
 
         # 网页解析
         soup = BeautifulSoup(r.content.decode(), 'html.parser')
         body = soup.body
-
         musics = body.find('ul', attrs={'class': 'f-hide'}).find_all('li')  # 获取专辑的所有音乐
-
+        if len(musics) == 0:
+            return
         for music in musics:
             music = music.find('a')
             music_id = music['href'].replace('/song?id=', '')

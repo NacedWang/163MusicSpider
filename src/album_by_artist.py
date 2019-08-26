@@ -5,13 +5,13 @@ import datetime
 import math
 import random
 import time
+from concurrent.futures import ProcessPoolExecutor
 
 import requests
 from bs4 import BeautifulSoup
 
 from src import sql
 from src.util.user_agents import agents
-from concurrent.futures import ProcessPoolExecutor
 
 
 class Album(object):
@@ -31,10 +31,11 @@ class Album(object):
     }
 
     def saveAlbums(self, artist_id):
-        params = {'id': artist_id, 'limit': '200'}
+        # limit 分页，截止2019-08-26，发现专辑数大于1000的歌手
+        params = {'id': artist_id, 'limit': '9999'}
         # 获取歌手个人主页
-        # agent = random.choice(agents)
-        # self.headers["User-Agent"] = agent
+        agent = random.choice(agents)
+        self.headers["User-Agent"] = agent
         r = requests.get('http://music.163.com/artist/album', headers=self.headers, params=params)
 
         # 网页解析
@@ -43,6 +44,8 @@ class Album(object):
         imgs = soup.find_all('div', attrs={'class': 'u-cover u-cover-alb3'})
         # 专辑信息
         albums = soup.find_all('a', attrs={'class': 'tit s-fc0'})  # 获取所有专辑
+        if len(albums) == 0:
+            return
         for index, album in enumerate(albums):
             # 专辑id
             album_id = album['href'].replace('/album?id=', '')
