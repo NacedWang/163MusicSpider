@@ -44,7 +44,11 @@ class LyricComment(object):
         regex = re.compile(r'\[.*\]')
         finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
         # 持久化数据库
-        sql.insert_lyric(music_id, finalLyric)
+        try:
+            sql.insert_lyric(music_id, finalLyric)
+        except Exception as e:
+            print(music_id, "insert error" ,str(e))
+            time.sleep(5)
 
 
 def saveLyricBatch(index):

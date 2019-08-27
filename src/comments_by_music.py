@@ -68,7 +68,7 @@ class LyricComment(object):
             sql.insert_comment(commentId, music_id, content, likedCount, time, userId, nickname, userImg)
         except Exception as e:
             # 打印错误日志
-            print(str(item) + ' insert error : ' + str(e))
+            print(str(item) , ' insert error : ' , str(e))
             time.sleep(5)
 
 

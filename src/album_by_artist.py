@@ -69,7 +69,7 @@ def saveAlbumBatch(index):
             my_album.saveAlbums(i['artist_id'])
         except Exception as e:
             # 打印错误日志
-            print(str(i) + ' internal  error : ' + str(e))
+            print(str(i) , ' internal  error : ' , str(e))
             time.sleep(5)
     print("index:", index, "finished")
 
