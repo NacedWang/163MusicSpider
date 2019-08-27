@@ -92,4 +92,5 @@ def albumSpider():
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
     print("耗时：", (endTime - startTime).seconds, "秒")
 
-    # albumSpider()
+# if __name__ == '__main__':
+#     albumSpider()

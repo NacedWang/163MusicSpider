@@ -106,4 +106,5 @@ def commentSpider():
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
     print("耗时：", (endTime - startTime).seconds, "秒")
 
-# commentSpider()
+# if __name__ == '__main__':
+#     commentSpider()
