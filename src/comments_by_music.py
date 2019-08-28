@@ -10,7 +10,7 @@ from concurrent.futures.process import ProcessPoolExecutor
 
 import requests
 
-from src import sql
+from src import sql, redis_util
 from src.util.user_agents import agents
 
 
@@ -35,10 +35,18 @@ class LyricComment(object):
         # 获取歌手个人主页
         agent = random.choice(agents)
         self.headers["User-Agent"] = agent
-        r = requests.get('http://music.163.com/api/v1/resource/comments/R_SO_4_' + str(music_id), headers=self.headers,
-                         params=params)
+        url = 'http://music.163.com/api/v1/resource/comments/R_SO_4_' + str(music_id)
+        # 去redis验证是否爬取过
+        check = redis_util.checkIfRequest(redis_util.commentPrefix, url)
+        if (check):
+            print("url:", url, "has request. pass")
+            time.sleep(2)
+            return
+        r = requests.get(url, headers=self.headers, params=params)
         # 结果解析
         commentsJson = json.loads(r.text)
+        # 保存redis去重缓存
+        redis_util.saveUrl(redis_util.commentPrefix, url)
         # 热评
         for item in commentsJson['hotComments']:
             self.dbsave(item, music_id)
@@ -68,7 +76,7 @@ class LyricComment(object):
             sql.insert_comment(commentId, music_id, content, likedCount, time, userId, nickname, userImg)
         except Exception as e:
             # 打印错误日志
-            print(str(item) , ' insert error : ' , str(e))
+            print(str(item), ' insert error : ', str(e))
             time.sleep(5)
 
 
@@ -97,7 +105,7 @@ def commentSpider():
     # 批次
     batch = math.ceil(musics_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(5)
+    pool = ProcessPoolExecutor(3)
     for index in range(0, batch):
         pool.submit(saveCommentBatch, index)
     pool.shutdown(wait=True)

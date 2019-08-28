@@ -5,12 +5,13 @@ import datetime
 import math
 import random
 import time
+import traceback
 from concurrent.futures.process import ProcessPoolExecutor
 
 import requests
 from bs4 import BeautifulSoup
 
-from src import sql
+from src import sql, redis_util
 from src.util.user_agents import agents
 
 
@@ -21,11 +22,12 @@ class Music(object):
         'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
-        'Cookie': '_ntes_nnid=7eced19b27ffae35dad3f8f2bf5885cd,1476521011210; _ntes_nuid=7eced19b27ffae35dad3f8f2bf5885cd; usertrack=c+5+hlgB7TgnsAmACnXtAg==; Province=025; City=025; NTES_PASSPORT=6n9ihXhbWKPi8yAqG.i2kETSCRa.ug06Txh8EMrrRsliVQXFV_orx5HffqhQjuGHkNQrLOIRLLotGohL9s10wcYSPiQfI2wiPacKlJ3nYAXgM; P_INFO=hourui93@163.com|1476523293|1|study|11&12|jis&1476511733&mail163#jis&320100#10#0#0|151889&0|g37_client_check&mailsettings&mail163&study&blog|hourui93@163.com; _ga=GA1.2.1405085820.1476521280; JSESSIONID-WYYY=fb5288e1c5f667324f1636d020704cab2f27ee915622b114f89027cbf60c38be2af6b9cbef2223c1f2581e3502f11b86efd60891d6f61b6f783c0d55114f8269fa801df7352f5cc4c8259876e563a6bd0212b504a8997723a0593b21d5b3d9076d4fa38c098be68e3c5d36d342e4a8e40c1f73378cec0b5851bd8a628886edbdd23a7093%3A1476623819662; _iuqxldmzr_=25; __utma=94650624.1038096298.1476521011.1476610320.1476622020.10; __utmb=94650624.14.10.1476622020; __utmc=94650624; __utmz=94650624.1476521011.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)',
+        # 获取数据多了之后，就会被禁用访问,可以使用代理
+        'Cookie': 'MUSIC_U=f8b73ab123ddad32d44c37546522e06bb123363f4b813922a1902f2ds2ceb750c52sd32ccbb1ab2b9c23asd3a31522c7067cce3c7469;',
         'DNT': '1',
         'Host': 'music.163.com',
         'Pragma': 'no-cache',
-        'Referer': 'http://music.163.com/',
+        'Referer': 'http://music.163.com/album?id=71537',
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
     }
@@ -35,11 +37,20 @@ class Music(object):
         # 获取专辑对应的页面
         agent = random.choice(agents)
         self.headers["User-Agent"] = agent
+        url = 'https://music.163.com/album?id=' + album_id
+        # 去redis验证是否爬取过
+        check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
+        if (check):
+            print("url:", url, "has request. pass")
+            time.sleep(2)
+            return
         r = requests.get('https://music.163.com/album', headers=self.headers, params=params)
 
         # 网页解析
         soup = BeautifulSoup(r.content.decode(), 'html.parser')
         body = soup.body
+        # 保存redis去重缓存
+        redis_util.saveUrl(redis_util.musicPrefix, url)
         musics = body.find('ul', attrs={'class': 'f-hide'}).find_all('li')  # 获取专辑的所有音乐
         if len(musics) == 0:
             return
@@ -51,7 +62,8 @@ class Music(object):
                 sql.insert_music(music_id, music_name, album_id)
             except Exception as e:
                 # 打印错误日志
-                print(music + ' inset db error: ' + str(e))
+                print(music, ' inset db error: ', str(e))
+                # traceback.print_exc()
                 time.sleep(5)
 
 
@@ -80,7 +92,7 @@ def musicSpider():
     # 批次
     batch = math.ceil(albums_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(5)
+    pool = ProcessPoolExecutor(3)
     for index in range(0, batch):
         pool.submit(saveMusicBatch, index)
     pool.shutdown(wait=True)
