@@ -2,6 +2,7 @@
 根据专辑 ID 获取到所有的音乐 ID
 """
 import datetime
+import json
 import math
 import random
 import time
@@ -32,12 +33,13 @@ class Music(object):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
     }
 
+    # 采用模仿网易云页面请求的方式爬取
     def save_music(self, album_id):
         params = {'id': album_id}
         # 获取专辑对应的页面
         agent = random.choice(agents)
         self.headers["User-Agent"] = agent
-        url = 'https://music.163.com/album?id=' + album_id
+        url = 'https://music.163.com/album?id=' + str(album_id)
         # 去redis验证是否爬取过
         check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
         if (check):
@@ -66,6 +68,32 @@ class Music(object):
                 # traceback.print_exc()
                 time.sleep(5)
 
+    # 调用网易云api爬取
+    def save_music_by_api(self, album_id):
+        url = "http://music.163.com/api/album/" + str(album_id)
+        # 去redis验证是否爬取过
+        check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
+        if (check):
+            print("url:", url, "has request. pass")
+            time.sleep(2)
+            return
+        r = requests.get(url)
+        # 解析
+        ablum_json = json.loads(r.text)
+        # 保存redis去重缓存
+        redis_util.saveUrl(redis_util.musicPrefix, url)
+        for item in ablum_json.get('album').get('songs'):
+            print(item)
+            music_id = item['id']
+            music_name = item['name']
+            try:
+                sql.insert_music(music_id, music_name, album_id)
+            except Exception as e:
+                # 打印错误日志
+                print(music_id, music_name, album_id, ' inset db error: ', str(e))
+                # traceback.print_exc()
+                time.sleep(5)
+
 
 def saveMusicBatch(index):
     my_music = Music()
@@ -74,7 +102,10 @@ def saveMusicBatch(index):
     print("index:", index, "offset:", offset, " albums :", len(albums), "start")
     for i in albums:
         try:
-            my_music.save_music(i['album_id'])
+            # 调用网易云api爬取
+            my_music.save_music_by_api(i['album_id'])
+            # 采用模仿网易云页面请求的方式爬取
+            # my_music.save_music(i['album_id'])
         except Exception as e:
             # 打印错误日志
             print(str(i) + ' interval error: ' + str(e))

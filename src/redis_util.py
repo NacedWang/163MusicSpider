@@ -11,6 +11,8 @@ lyricPrefix = projectPrefix + 'lyric:'
 commentPrefix = projectPrefix + 'comment:'
 # 歌曲前缀
 musicPrefix = projectPrefix + 'music:'
+# 专辑前缀
+albumPrefix = projectPrefix + 'album:'
 
 
 # 查看key是否存在

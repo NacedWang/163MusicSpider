@@ -10,7 +10,7 @@ from concurrent.futures import ProcessPoolExecutor
 import requests
 from bs4 import BeautifulSoup
 
-from src import sql
+from src import sql, redis_util
 from src.util.user_agents import agents
 
 
@@ -36,10 +36,19 @@ class Album(object):
         # 获取歌手个人主页
         agent = random.choice(agents)
         self.headers["User-Agent"] = agent
+        # 去redis验证是否爬取过
+        url = 'http://music.163.com/artist/album?id=' + str(artist_id)
+        check = redis_util.checkIfRequest(redis_util.albumPrefix, url)
+        if (check):
+            print("url:", url, "has request. pass")
+            time.sleep(2)
+            return
         r = requests.get('http://music.163.com/artist/album', headers=self.headers, params=params)
 
         # 网页解析
         soup = BeautifulSoup(r.content.decode(), 'html.parser')
+        # 保存redis去重缓存
+        redis_util.saveUrl(redis_util.albumPrefix, url)
         # 所有图片
         imgs = soup.find_all('div', attrs={'class': 'u-cover u-cover-alb3'})
         # 专辑信息
@@ -69,7 +78,7 @@ def saveAlbumBatch(index):
             my_album.saveAlbums(i['artist_id'])
         except Exception as e:
             # 打印错误日志
-            print(str(i) , ' internal  error : ' , str(e))
+            print(str(i), ' internal  error : ', str(e))
             time.sleep(5)
     print("index:", index, "finished")
 
@@ -83,7 +92,7 @@ def albumSpider():
     # 批次
     batch = math.ceil(artists_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(5)
+    pool = ProcessPoolExecutor(3)
     for index in range(0, batch):
         pool.submit(saveAlbumBatch, index)
     pool.shutdown(wait=True)
