@@ -40,7 +40,7 @@ class LyricComment(object):
         check = redis_util.checkIfRequest(redis_util.lyricPrefix, url)
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(2)
+            time.sleep(1)
             return
         r = requests.get(url, headers=self.headers)
         # 解析
@@ -56,7 +56,7 @@ class LyricComment(object):
             sql.insert_lyric(music_id, finalLyric)
         except Exception as e:
             print(music_id, "insert error", str(e))
-            time.sleep(5)
+            time.sleep(1)
 
 
 def saveLyricBatch(index):
@@ -72,7 +72,7 @@ def saveLyricBatch(index):
             # 打印错误日志
             print(item['music_id'], ' internal  error : ' + str(e))
             # traceback.print_exc()
-            time.sleep(5)
+            time.sleep(2)
     print("index:", index, "finished")
 
 

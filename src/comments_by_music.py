@@ -40,7 +40,7 @@ class LyricComment(object):
         check = redis_util.checkIfRequest(redis_util.commentPrefix, url)
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(2)
+            time.sleep(1)
             return
         r = requests.get(url, headers=self.headers, params=params)
         # 结果解析
@@ -78,7 +78,7 @@ class LyricComment(object):
         except Exception as e:
             # 打印错误日志
             print(str(item), ' insert error : ', str(e))
-            time.sleep(5)
+            time.sleep(1)
 
 
 def saveCommentBatch(index):
@@ -94,7 +94,7 @@ def saveCommentBatch(index):
             # 打印错误日志
             print(' internal  error : ' + str(e))
             # traceback.print_exc()
-            time.sleep(5)
+            time.sleep(2)
     print("index:", index, "finished")
 
 

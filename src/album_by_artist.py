@@ -65,7 +65,7 @@ class Album(object):
             except Exception as e:
                 # 打印错误日志
                 print(str(album) + ' insert error : ' + str(e))
-                time.sleep(5)
+                time.sleep(1)
 
 
 def saveAlbumBatch(index):
@@ -79,7 +79,7 @@ def saveAlbumBatch(index):
         except Exception as e:
             # 打印错误日志
             print(str(i), ' internal  error : ', str(e))
-            time.sleep(5)
+            time.sleep(2)
     print("index:", index, "finished")
 
 
