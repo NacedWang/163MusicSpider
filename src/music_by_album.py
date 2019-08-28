@@ -77,11 +77,14 @@ class Music(object):
             print("url:", url, "has request. pass")
             time.sleep(2)
             return
-        r = requests.get(url)
+        agent = random.choice(agents)
+        self.headers["User-Agent"] = agent
+        r = requests.get(url, headers=self.headers)
         # 解析
         ablum_json = json.loads(r.text)
         # 保存redis去重缓存
-        redis_util.saveUrl(redis_util.musicPrefix, url)
+        if (ablum_json['code'] == 200):
+            redis_util.saveUrl(redis_util.musicPrefix, url)
         for item in ablum_json.get('album').get('songs'):
             music_id = item['id']
             music_name = item['name']
@@ -105,6 +108,7 @@ def saveMusicBatch(index):
             my_music.save_music_by_api(i['album_id'])
             # 采用模仿网易云页面请求的方式爬取
             # my_music.save_music(i['album_id'])
+            time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(str(i) + ' interval error: ' + str(e))
@@ -122,7 +126,7 @@ def musicSpider():
     # 批次
     batch = math.ceil(albums_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(3)
+    pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
         pool.submit(saveMusicBatch, index)
     pool.shutdown(wait=True)

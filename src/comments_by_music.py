@@ -46,7 +46,8 @@ class LyricComment(object):
         # 结果解析
         commentsJson = json.loads(r.text)
         # 保存redis去重缓存
-        redis_util.saveUrl(redis_util.commentPrefix, url)
+        if (commentsJson['code'] == 200):
+            redis_util.saveUrl(redis_util.commentPrefix, url)
         # 热评
         for item in commentsJson['hotComments']:
             self.dbsave(item, music_id)
@@ -88,6 +89,7 @@ def saveCommentBatch(index):
     for item in musics:
         try:
             my_lyric_comment.saveComment(item['music_id'])
+            time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(' internal  error : ' + str(e))

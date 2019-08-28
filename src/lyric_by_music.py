@@ -46,7 +46,8 @@ class LyricComment(object):
         # 解析
         lyricJson = json.loads(r.text)
         # 保存redis去重缓存
-        redis_util.saveUrl(redis_util.lyricPrefix, url)
+        if (lyricJson['code'] == 200):
+            redis_util.saveUrl(redis_util.lyricPrefix, url)
         # 把歌词里的时间干掉
         regex = re.compile(r'\[.*\]')
         finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
@@ -66,6 +67,7 @@ def saveLyricBatch(index):
     for item in musics:
         try:
             my_lyric_comment.saveLyric(item['music_id'])
+            time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(item['music_id'], ' internal  error : ' + str(e))
@@ -83,7 +85,7 @@ def lyricSpider():
     # 批次
     batch = math.ceil(musics_num.get('num') / 100.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(3)
+    pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
         pool.submit(saveLyricBatch, index)
     pool.shutdown(wait=True)
