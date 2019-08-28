@@ -83,7 +83,6 @@ class Music(object):
         # 保存redis去重缓存
         redis_util.saveUrl(redis_util.musicPrefix, url)
         for item in ablum_json.get('album').get('songs'):
-            print(item)
             music_id = item['id']
             music_name = item['name']
             try:
