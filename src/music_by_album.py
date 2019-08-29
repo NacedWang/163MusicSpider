@@ -44,7 +44,7 @@ class Music(object):
         check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(2)
+            time.sleep(1)
             return
         r = requests.get('https://music.163.com/album', headers=self.headers, params=params)
 
@@ -66,7 +66,7 @@ class Music(object):
                 # 打印错误日志
                 print(music, ' inset db error: ', str(e))
                 # traceback.print_exc()
-                time.sleep(5)
+                time.sleep(1)
 
     # 调用网易云api爬取
     def save_music_by_api(self, album_id):
@@ -75,7 +75,7 @@ class Music(object):
         check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(2)
+            time.sleep(1)
             return
         agent = random.choice(agents)
         self.headers["User-Agent"] = agent
@@ -94,7 +94,7 @@ class Music(object):
                 # 打印错误日志
                 print(music_id, music_name, album_id, ' inset db error: ', str(e))
                 # traceback.print_exc()
-                time.sleep(5)
+                time.sleep(1)
 
 
 def saveMusicBatch(index):
@@ -112,7 +112,7 @@ def saveMusicBatch(index):
         except Exception as e:
             # 打印错误日志
             print(str(i) + ' interval error: ' + str(e))
-            time.sleep(5)
+            time.sleep(2)
     print("index:", index, "finished")
 
 

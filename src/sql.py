@@ -14,7 +14,7 @@ connection = pymysql.connect(host='localhost',
 # 保存评论
 def insert_comment(commentId, music_id, content, likedCount, time, userId, nickname, userImg):
     with connection.cursor() as cursor:
-        sql = "INSERT INTO `comments` (`comment_id`, `music_id`, `content`, `liked_count`, `time`, `user_id`, `nickname`, `user_img`) VALUES (%s, $s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO `comments` (`comment_id`, `music_id`, `content`, `liked_count`, `time`, `user_id`, `nickname`, `user_img`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (commentId, music_id, content, likedCount, time, userId, nickname, userImg))
     connection.commit()
 
