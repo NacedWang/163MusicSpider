@@ -61,6 +61,8 @@ class LyricComment(object):
                 print(music_id, "insert error", str(e))
         else:
             print(str(music_id), "has no lyric", lyricJson)
+        # 请求完成后睡一秒 防作弊
+        time.sleep(1)
 
 
 def saveLyricBatch(index):
@@ -71,7 +73,6 @@ def saveLyricBatch(index):
     for item in musics:
         try:
             my_lyric_comment.saveLyric(item['music_id'])
-            time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(item['music_id'], ' internal  error : ' + str(e))

@@ -40,7 +40,6 @@ class Comment(object):
         check = redis_util.checkIfRequest(redis_util.commentPrefix, str(music_id))
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(1)
             return
         r = requests.get(url, headers=self.headers, params=params)
         # 结果解析
@@ -58,6 +57,8 @@ class Comment(object):
         # 普通评论
         for item in commentsJson['comments']:
             self.dbsave(item, music_id)
+        # 请求完成后睡一秒 防作弊
+        time.sleep(1)
 
     # 保存数据库
     def dbsave(self, item, music_id):
@@ -92,7 +93,6 @@ def saveCommentBatch(index):
     for item in musics:
         try:
             my_comment.saveComment(item['music_id'])
-            # time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(' internal  error : ' + str(e))
