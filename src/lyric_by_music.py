@@ -40,7 +40,6 @@ class LyricComment(object):
         check = redis_util.checkIfRequest(redis_util.lyricPrefix, str(music_id))
         if (check):
             print("url:", url, "has request. pass")
-            time.sleep(1)
             return
         r = requests.get(url, headers=self.headers)
         # 解析
@@ -51,21 +50,23 @@ class LyricComment(object):
         else:
             print(url, " request error :", lyricJson)
             return
-        # 把歌词里的时间干掉
-        regex = re.compile(r'\[.*\]')
-        finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
-        # 持久化数据库
-        try:
-            sql.insert_lyric(music_id, finalLyric)
-        except Exception as e:
-            print(music_id, "insert error", str(e))
-            time.sleep(1)
+        if ('lrc' in lyricJson):
+            # 把歌词里的时间干掉
+            regex = re.compile(r'\[.*\]')
+            finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
+            # 持久化数据库
+            try:
+                sql.insert_lyric(music_id, finalLyric)
+            except Exception as e:
+                print(music_id, "insert error", str(e))
+        else:
+            print(str(music_id), "has no lyric", lyricJson)
 
 
 def saveLyricBatch(index):
     my_lyric_comment = LyricComment()
-    offset = 100 * index
-    musics = sql.get_music_page(offset, 100)
+    offset = 1000 * index
+    musics = sql.get_music_page(offset, 1000)
     print("index:", index, "offset:", offset, "artists :", len(musics), "start")
     for item in musics:
         try:
@@ -75,7 +76,7 @@ def saveLyricBatch(index):
             # 打印错误日志
             print(item['music_id'], ' internal  error : ' + str(e))
             # traceback.print_exc()
-            time.sleep(2)
+            time.sleep(1)
     print("index:", index, "finished")
 
 
@@ -86,7 +87,7 @@ def lyricSpider():
     # 所有歌手数量
     musics_num = sql.get_all_music_num()
     # 批次
-    batch = math.ceil(musics_num.get('num') / 100.0)
+    batch = math.ceil(musics_num.get('num') / 1000.0)
     # 构建线程池
     # pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
