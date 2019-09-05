@@ -16,10 +16,10 @@ albumPrefix = projectPrefix + 'album:'
 
 
 # 查看key是否存在
-def checkIfRequest(prefix, url):
-    if url is None:
+def checkIfRequest(prefix, key):
+    if key is None:
         raise Exception("redis checkIfRequest get no url")
-    res = connection.exists(prefix + url)
+    res = connection.exists(prefix + key)
     if res > 0:
         return True
     else:
@@ -27,10 +27,10 @@ def checkIfRequest(prefix, url):
 
 
 # 保存key
-def saveUrl(prefix, url):
-    if url is None:
+def saveUrl(prefix, key):
+    if key is None:
         raise Exception("redis saveUrl get no url")
-    res = connection.set(prefix + url, url)
+    res = connection.set(prefix + key, key)
     if not res:
         raise Exception("redis saveUrl fail")
     return res

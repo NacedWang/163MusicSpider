@@ -37,7 +37,7 @@ class LyricComment(object):
         self.headers["User-Agent"] = agent
         url = 'http://music.163.com/api/song/lyric?id=' + str(music_id) + '&lv=1&kv=1&tv=1'
         # 去redis验证是否爬取过
-        check = redis_util.checkIfRequest(redis_util.lyricPrefix, url)
+        check = redis_util.checkIfRequest(redis_util.lyricPrefix, str(music_id))
         if (check):
             print("url:", url, "has request. pass")
             time.sleep(1)
@@ -47,7 +47,10 @@ class LyricComment(object):
         lyricJson = json.loads(r.text)
         # 保存redis去重缓存
         if (lyricJson['code'] == 200):
-            redis_util.saveUrl(redis_util.lyricPrefix, url)
+            redis_util.saveUrl(redis_util.lyricPrefix, str(music_id))
+        else:
+            print(url, " request error :", lyricJson)
+            return
         # 把歌词里的时间干掉
         regex = re.compile(r'\[.*\]')
         finalLyric = re.sub(regex, '', lyricJson['lrc']['lyric']).strip()
@@ -85,10 +88,11 @@ def lyricSpider():
     # 批次
     batch = math.ceil(musics_num.get('num') / 100.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(1)
+    # pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
-        pool.submit(saveLyricBatch, index)
-    pool.shutdown(wait=True)
+        saveLyricBatch(index)
+        # pool.submit(saveLyricBatch, index)
+    # pool.shutdown(wait=True)
     print("======= 结束爬 歌词 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))

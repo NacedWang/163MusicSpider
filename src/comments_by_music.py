@@ -14,7 +14,7 @@ from src import sql, redis_util
 from src.util.user_agents import agents
 
 
-class LyricComment(object):
+class Comment(object):
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate, sdch',
@@ -37,7 +37,7 @@ class LyricComment(object):
         self.headers["User-Agent"] = agent
         url = 'http://music.163.com/api/v1/resource/comments/R_SO_4_' + str(music_id)
         # 去redis验证是否爬取过
-        check = redis_util.checkIfRequest(redis_util.commentPrefix, url)
+        check = redis_util.checkIfRequest(redis_util.commentPrefix, str(music_id))
         if (check):
             print("url:", url, "has request. pass")
             time.sleep(1)
@@ -47,7 +47,10 @@ class LyricComment(object):
         commentsJson = json.loads(r.text)
         # 保存redis去重缓存
         if (commentsJson['code'] == 200):
-            redis_util.saveUrl(redis_util.commentPrefix, url)
+            redis_util.saveUrl(redis_util.commentPrefix, str(music_id))
+        else:
+            print(url, " request error :", commentsJson)
+            return
         # 热评
         for item in commentsJson['hotComments']:
             self.dbsave(item, music_id)
@@ -69,12 +72,12 @@ class LyricComment(object):
         # 点赞数
         likedCount = item['likedCount']
         # 时间
-        time = item['time']
+        remarkTime = item['time']
         # 评论id
         commentId = item['commentId']
         try:
             # 持久化
-            sql.insert_comment(commentId, music_id, content, likedCount, time, userId, nickname, userImg)
+            sql.insert_comment(commentId, music_id, content, likedCount, remarkTime, userId, nickname, userImg)
         except Exception as e:
             # 打印错误日志
             print(str(item), ' insert error : ', str(e))
@@ -82,14 +85,14 @@ class LyricComment(object):
 
 
 def saveCommentBatch(index):
-    my_lyric_comment = LyricComment()
+    my_comment = Comment()
     offset = 1000 * index
     musics = sql.get_music_page(offset, 1000)
-    print("index:", index, "offset:", offset, "artists :", len(musics), "start")
+    print("index:", index, "offset:", offset, "artists :", len(musics), "start :", musics[0]['music_id'])
     for item in musics:
         try:
-            my_lyric_comment.saveComment(item['music_id'])
-            time.sleep(1)
+            my_comment.saveComment(item['music_id'])
+            # time.sleep(1)
         except Exception as e:
             # 打印错误日志
             print(' internal  error : ' + str(e))
@@ -107,10 +110,11 @@ def commentSpider():
     # 批次
     batch = math.ceil(musics_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(3)
+    # pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
-        pool.submit(saveCommentBatch, index)
-    pool.shutdown(wait=True)
+        saveCommentBatch(index)
+        # pool.submit(saveCommentBatch, index)
+    # pool.shutdown(wait=True)
     print("======= 结束爬 评论 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))

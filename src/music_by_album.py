@@ -72,7 +72,7 @@ class Music(object):
     def save_music_by_api(self, album_id):
         url = "http://music.163.com/api/album/" + str(album_id)
         # 去redis验证是否爬取过
-        check = redis_util.checkIfRequest(redis_util.musicPrefix, url)
+        check = redis_util.checkIfRequest(redis_util.musicPrefix, str(album_id))
         if (check):
             print("url:", url, "has request. pass")
             time.sleep(1)
@@ -84,7 +84,10 @@ class Music(object):
         ablum_json = json.loads(r.text)
         # 保存redis去重缓存
         if (ablum_json['code'] == 200):
-            redis_util.saveUrl(redis_util.musicPrefix, url)
+            redis_util.saveUrl(redis_util.musicPrefix, str(album_id))
+        else:
+            print(url, " request error :", ablum_json)
+            return
         for item in ablum_json.get('album').get('songs'):
             music_id = item['id']
             music_name = item['name']
@@ -126,10 +129,11 @@ def musicSpider():
     # 批次
     batch = math.ceil(albums_num.get('num') / 1000.0)
     # 构建线程池
-    pool = ProcessPoolExecutor(1)
+    # pool = ProcessPoolExecutor(1)
     for index in range(0, batch):
-        pool.submit(saveMusicBatch, index)
-    pool.shutdown(wait=True)
+        saveMusicBatch(index)
+        # pool.submit(saveMusicBatch, index)
+    # pool.shutdown(wait=True)
     print("======= 结束爬 音乐 信息 ===========")
     endTime = datetime.datetime.now()
     print(endTime.strftime('%Y-%m-%d %H:%M:%S'))
