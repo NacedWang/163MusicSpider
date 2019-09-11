@@ -19,6 +19,21 @@ def insert_comment(commentId, music_id, content, likedCount, time, userId, nickn
     connection.commit()
 
 
+# 获取所有歌词 数量
+def get_all_comment_num():
+    with connection.cursor() as cursor:
+        sql = "SELECT count(1) as num FROM `comments`  where comment_id >= 0"
+        cursor.execute(sql, ())
+        return cursor.fetchone()
+
+# 分页获取歌词信息
+def get_comment_page(offset, size):
+    with connection.cursor() as cursor:
+        sql = "SELECT comment_id,`content` FROM `comments`  where comment_id >= 0 order by comment_id limit %s ,%s"
+        cursor.execute(sql, (offset, size))
+        return cursor.fetchall()
+
+
 # 保存歌词
 def insert_lyric(music_id, lyric):
     with connection.cursor() as cursor:
@@ -27,10 +42,10 @@ def insert_lyric(music_id, lyric):
     connection.commit()
 
 
-# 获取所有歌手的 数量
+# 获取所有歌手的 数量  评论到 192913  歌词 64551
 def get_all_music_num():
     with connection.cursor() as cursor:
-        sql = "SELECT count(1) as num FROM `musics` "
+        sql = "SELECT count(1) as num FROM `musics`  where music_id >= 192913"
         cursor.execute(sql, ())
         return cursor.fetchone()
 
@@ -38,7 +53,7 @@ def get_all_music_num():
 # 分页获取歌手的 ID
 def get_music_page(offset, size):
     with connection.cursor() as cursor:
-        sql = "SELECT `music_id` FROM `musics` limit %s ,%s"
+        sql = "SELECT `music_id` FROM `musics`  where music_id >= 192913 order by music_id limit %s ,%s"
         cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 
@@ -83,10 +98,10 @@ def get_artist_page(offset, size):
         return cursor.fetchall()
 
 
-# 获取所有专辑的 数量
+# 获取所有专辑的 数量 歌曲到 36504028
 def get_all_album_num():
     with connection.cursor() as cursor:
-        sql = "SELECT count(1) as num FROM `albums` "
+        sql = "SELECT count(1) as num FROM `albums` where album_id > 36503960 "
         cursor.execute(sql, ())
         return cursor.fetchone()
 
@@ -94,7 +109,7 @@ def get_all_album_num():
 # 分页获取专辑的 ID
 def get_album_page(offset, size):
     with connection.cursor() as cursor:
-        sql = "SELECT `album_id` FROM `albums` limit %s ,%s"
+        sql = "SELECT `album_id` FROM `albums` where album_id > 36503960 limit %s ,%s"
         cursor.execute(sql, (offset, size))
         return cursor.fetchall()
 
